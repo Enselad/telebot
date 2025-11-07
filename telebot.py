@@ -7,11 +7,9 @@ from config import MYSQL_CONFIG, BOT_TOKEN
 
 # Настройки логирования
 logging.basicConfig(
-    format='%(`asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-logging.getLogger('httpx').setLevel(logging.WARNING)
-logging.getLogger('telegram').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Хранилище временных данных пользователей
@@ -182,7 +180,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text.strip()
-    logger.info(f"получено текстовое сообщение от {user_id}: {text}")
 
     # Если пользователь не начал диалог
     if user_id not in user_data:
@@ -196,14 +193,11 @@ async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE
         try:
             age = int(text)
             if age < 1 or age > 100:
-                logger.error(f"пользователь {user_id} ввел неверный возраст {age}")
                 await update.message.reply_text("Пожалуйста, введите реальный возраст (1-100):")
                 return
 
             user_data[user_id]['age'] = age
             user_data[user_id]['state'] = 'waiting_gender'
-
-            logger.info(f"пользователь {user_id} ввел возраст: {age}, state: {user_data[user_id]['state']}")
 
             await update.message.reply_text(
                 f"✅ Возраст {age} лет сохранен.\n\n"
